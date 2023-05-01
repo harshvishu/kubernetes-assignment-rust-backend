@@ -1,7 +1,7 @@
 # Build stage
 FROM rust:1.69 AS build
 
-WORKDIR /usr/src/rust-web
+WORKDIR /usr/src/todo-web
 COPY . .
 
 RUN cargo install --path .
@@ -14,10 +14,10 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/local/bin/
-COPY --from=build /usr/local/bin/rust-web .
+COPY --from=build /usr/local/cargo/bin/todo-web .
 
 WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["rust-web"]
+CMD ["todo-web"]
