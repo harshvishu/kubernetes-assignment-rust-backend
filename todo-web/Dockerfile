@@ -1,13 +1,17 @@
-FROM rust:1.69-slim-bullseye AS builder
+FROM rust:1.69 as builder
 
-WORKDIR /usr/src/todo-web
+WORKDIR /usr/src/app
+
 COPY . .
 
 RUN cargo install --path .
 
-FROM debian:bullseye-slim
-COPY --from=builder /usr/local/cargo/bin/todo-web /usr/local/bin/todo-web
+FROM debian:buster-slim
+
+WORKDIR /usr/local/bin/
+
+COPY --from=builder /usr/local/cargo/bin/todo-web .
 
 EXPOSE 8000
 
-CMD ["todo-web"]
+CMD ["./todo-web"]
