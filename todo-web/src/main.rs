@@ -37,11 +37,11 @@ async fn index() -> String {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index])
+    // rocket::build().mount("/", routes![index])
 
     // LOCAL TEST
-    // let figment = rocket::Config::figment()
-    //     .merge(("port", 8080))
-    //     .merge(("address", "0.0.0.0"));
-    // rocket::custom(figment).mount("/", routes![index])
+    let figment = rocket::Config::figment()
+        .merge(("port", 8000))
+        .merge(("address", "0.0.0.0"));
+    rocket::custom(figment).mount("/", routes![index])
 }

@@ -31,11 +31,11 @@ fn get_items() -> String {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![get_items])
+    // rocket::build().mount("/", routes![get_items])
 
     // LOCAL TEST
-    // let figment = rocket::Config::figment()
-    //     .merge(("port", 8080))
-    //     .merge(("address", "0.0.0.0"));
-    // rocket::custom(figment).mount("/", routes![get_items])
+    let figment = rocket::Config::figment()
+        .merge(("port", 8000))
+        .merge(("address", "0.0.0.0"));
+    rocket::custom(figment).mount("/", routes![get_items])
 }
