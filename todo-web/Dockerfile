@@ -1,13 +1,23 @@
-FROM rust:1.69-slim-bullseye AS builder
+# Build stage
+FROM rust:1.69 AS build
 
-WORKDIR /usr/src/todo-web
+WORKDIR /usr/src/rust-web
 COPY . .
 
 RUN cargo install --path .
 
+# Final stage
 FROM debian:bullseye-slim
-COPY --from=builder /usr/local/cargo/bin/todo-web /usr/local/bin/todo-web
+
+RUN apt-get update && \
+    apt-get install -y openssl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local/bin/
+COPY --from=build /usr/local/cargo/bin/rust-web .
+
+WORKDIR /app
 
 EXPOSE 8000
 
-CMD ["todo-web"]
+CMD ["rust-web"]
