@@ -4,6 +4,7 @@ FROM rust:1.69 AS build
 WORKDIR /usr/src/todo-web
 COPY . .
 
+# Build application
 RUN cargo install --path .
 
 # Final stage

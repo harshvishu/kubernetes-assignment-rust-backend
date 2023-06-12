@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: diesel-setup-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: diesel-setup
+          image: rust:latest
+          command:
+            - sh
+            - -c
+            - |
+              cargo install diesel_cli --no-default-features --features postgres
+              diesel setup
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://harsh:abcd1234@postgres-service:5432/todo_database"
+            - name: PGPASSWORD
+              value: "abcd1234"
+      restartPolicy: Never
+  backoffLimit: 0
