@@ -17,6 +17,9 @@ spec:
           image: harshvishu/todo-api-image:latest
           ports:
             - containerPort: 8000
+          envFrom:
+          - secretRef:
+              name: db-secrets
           env:
             - name: DATABASE_URL
-              value: "postgresql://harsh:abcd1234@postgres-service:5432/todo_database"
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DB)"

@@ -4,7 +4,7 @@ metadata:
   name: postgres-pv
 spec:
   capacity:
-    storage: 10Gi
+    storage: 1Gi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteOnce
@@ -48,13 +48,9 @@ spec:
           image: postgres:latest
           ports:
             - containerPort: 5432
-          env:
-            - name: POSTGRES_DB
-              value: todo_database
-            - name: POSTGRES_USER
-              value: harsh
-            - name: POSTGRES_PASSWORD
-              value: abcd1234
+          envFrom:
+          - secretRef:
+              name: db-secrets
           volumeMounts:
             - name: postgres-storage
               mountPath: /var/lib/postgresql/data

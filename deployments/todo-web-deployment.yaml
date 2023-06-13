@@ -15,8 +15,8 @@ spec:
       containers:
       - name: todo-web
         image: harshvishu/todo-web-image:latest
-        env:
-        - name: TODO_API_URL
-          value: "http://todo-api:8000"
+        envFrom:
+        - configMapRef:
+            name: todo-config
         ports:
         - containerPort: 8000

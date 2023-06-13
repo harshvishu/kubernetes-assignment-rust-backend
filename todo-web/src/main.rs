@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate rocket;
 
+use dotenvy::dotenv;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Serialize, Deserialize)]
 struct TodoItem {
@@ -12,7 +14,11 @@ struct TodoItem {
 }
 
 async fn get_items() -> Vec<TodoItem> {
-    let url = Url::parse("http://todo-api:8000").unwrap();
+    let todo_api_host = env::var("todo_api_host").expect("todo_api_host URL must be set");
+    let todo_api_port = env::var("todo_api_port").expect("todo_api_port URL must be set");
+
+    let url = format!("http://{}:{}", todo_api_host, todo_api_port);
+    let url = Url::parse(&url).unwrap();
     let items = reqwest::get(url)
         .await
         .unwrap()
@@ -52,7 +58,10 @@ async fn index() -> String {
     html.push_str("<ul>");
 
     for item in items {
-        html.push_str(&format!("<li>Title: {}. Completed {}</li>", item.body, item.completed));
+        html.push_str(&format!(
+            "<li>Title: {}. Completed {}</li>",
+            item.body, item.completed
+        ));
     }
 
     html.push_str("</ul>");
@@ -74,7 +83,10 @@ async fn create_todo(todo: &str) -> String {
     html.push_str("<ul>");
 
     for item in items {
-        html.push_str(&format!("<li>Title: {}. Completed {}</li>", item.body, item.completed));
+        html.push_str(&format!(
+            "<li>Title: {}. Completed {}</li>",
+            item.body, item.completed
+        ));
     }
 
     html.push_str("</ul>");
@@ -87,6 +99,8 @@ async fn create_todo(todo: &str) -> String {
 #[launch]
 fn rocket() -> _ {
     // rocket::build().mount("/", routes![index])
+
+    dotenv().ok();
 
     // LOCAL TEST
     let figment = rocket::Config::figment()

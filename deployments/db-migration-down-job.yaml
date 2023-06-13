@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-down-job
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+      - command:
+        - psql
+        - -h
+        - $(POSTGRES_HOST)
+        - -U
+        - $(POSTGRES_USER)
+        - -d
+        - $(POSTGRES_DB)
+        - -f
+        - /docker-entrypoint-initdb.d/down.sql
+        env:
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: POSTGRES_PASSWORD
+              name: db-secrets
+        envFrom:
+        - secretRef:
+            name: db-secrets
+        image: harshvishu/todo-migration-image:latest
+        name: migration-down-container
+      restartPolicy: Never
