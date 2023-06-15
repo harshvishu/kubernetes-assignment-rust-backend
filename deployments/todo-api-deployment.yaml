@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: todo-api
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: todo-api
@@ -13,13 +13,13 @@ spec:
         app: todo-api
     spec:
       containers:
-        - name: todo-api
-          image: harshvishu/todo-api-image:latest
-          ports:
-            - containerPort: 8000
-          envFrom:
-          - secretRef:
-              name: db-secrets
-          env:
-            - name: DATABASE_URL
-              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DB)"
+      - env:
+        - name: DATABASE_URL
+          value: postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):5432/$(POSTGRES_DB)
+        envFrom:
+        - secretRef:
+            name: db-secrets
+        image: harshvishu/todo-api-image:latest
+        name: todo-api
+        ports:
+        - containerPort: 8000

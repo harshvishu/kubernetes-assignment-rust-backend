@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  POSTGRES_DB: todo_database
+  POSTGRES_USER: harsh
+  POSTGRES_HOST: postgres-service
+kind: ConfigMap
+metadata:
+  name: db-config

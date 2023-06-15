@@ -3,6 +3,8 @@ extern crate rocket;
 
 use dotenvy::dotenv;
 use reqwest::Url;
+use rocket::response::content;
+use rocket::serde::json::Json;
 use serde::{Deserialize, Serialize};
 use std::env;
 
@@ -13,12 +15,25 @@ struct TodoItem {
     completed: bool,
 }
 
-async fn get_items() -> Vec<TodoItem> {
+#[derive(Serialize, Deserialize)]
+struct NewTodoItem {
+    body: String,
+}
+
+fn get_api_url(path: Option<&str>) -> Url {
     let todo_api_host = env::var("todo_api_host").expect("todo_api_host URL must be set");
     let todo_api_port = env::var("todo_api_port").expect("todo_api_port URL must be set");
 
-    let url = format!("http://{}:{}", todo_api_host, todo_api_port);
+    let url = match path {
+        Some(path) => format!("http://{}:{}/{}", todo_api_host, todo_api_port, path),
+        None => format!("http://{}:{}", todo_api_host, todo_api_port),
+    };
     let url = Url::parse(&url).unwrap();
+    return url;
+}
+
+async fn get_items() -> Vec<TodoItem> {
+    let url = get_api_url(None);
     let items = reqwest::get(url)
         .await
         .unwrap()
@@ -29,13 +44,13 @@ async fn get_items() -> Vec<TodoItem> {
     items
 }
 
-async fn post_items(todo: String) -> Vec<TodoItem> {
-    let url = Url::parse("http://todo-api:8000/todo").unwrap();
+async fn post_items(todo: Json<NewTodoItem>) -> Vec<TodoItem> {
+    let url = get_api_url(Some("todo"));
     let client = reqwest::Client::new();
 
     let items = client
         .post(url)
-        .body(todo)
+        .body(todo.body.to_owned())
         .send()
         .await
         .unwrap()
@@ -47,7 +62,7 @@ async fn post_items(todo: String) -> Vec<TodoItem> {
 }
 
 #[get("/")]
-async fn index() -> String {
+async fn index() -> content::RawHtml<String> {
     let items = get_items().await;
 
     let mut html = String::new();
@@ -68,12 +83,12 @@ async fn index() -> String {
     html.push_str("</body>");
     html.push_str("</html>");
 
-    html
+    return content::RawHtml(html);
 }
 
 #[post("/todo", data = "<todo>")]
-async fn create_todo(todo: &str) -> String {
-    let items = post_items(todo.to_owned()).await;
+async fn create_todo(todo: Json<NewTodoItem>) -> content::RawHtml<String> {
+    let items = post_items(todo).await;
 
     let mut html = String::new();
     html.push_str("<html>");
@@ -81,7 +96,6 @@ async fn create_todo(todo: &str) -> String {
     html.push_str("<body>");
     html.push_str("<h1>New Todo Created</h1>");
     html.push_str("<ul>");
-
     for item in items {
         html.push_str(&format!(
             "<li>Title: {}. Completed {}</li>",
@@ -93,13 +107,11 @@ async fn create_todo(todo: &str) -> String {
     html.push_str("</body>");
     html.push_str("</html>");
 
-    html
+    return content::RawHtml(html);
 }
 
 #[launch]
 fn rocket() -> _ {
-    // rocket::build().mount("/", routes![index])
-
     dotenv().ok();
 
     // LOCAL TEST

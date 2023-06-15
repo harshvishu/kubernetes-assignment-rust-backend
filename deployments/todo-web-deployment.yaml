@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: todo-web
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: todo-web
@@ -13,10 +13,10 @@ spec:
         app: todo-web
     spec:
       containers:
-      - name: todo-web
-        image: harshvishu/todo-web-image:latest
-        envFrom:
+      - envFrom:
         - configMapRef:
             name: todo-config
+        image: harshvishu/todo-web-image:latest
+        name: todo-web
         ports:
         - containerPort: 8000
