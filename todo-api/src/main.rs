@@ -11,25 +11,6 @@ use self::models::*;
 
 #[get("/")]
 fn get_items() -> String {
-
-    // let items = vec![
-    //     TodoItem {
-    //         id: 1,
-    //         body: String::from("Buy milk"),
-    //         completed: false,
-    //     },
-    //     TodoItem {
-    //         id: 1,
-    //         body: String::from("Buy cake"),
-    //         completed: false,
-    //     },
-    //     TodoItem {
-    //         id: 1,
-    //         body: String::from("Buy jam"),
-    //         completed: false,
-    //     },
-    // ];
-
     let conn = &mut establish_connection();
     let items = show_todos(conn);
     serde_json::to_string(&items).unwrap()
@@ -46,11 +27,6 @@ fn create_items(todo: &str) -> String {
 #[launch]
 fn rocket() -> _ {
     // rocket::build().mount("/", routes![get_items])
-
-    // Database Migration
-    // let conn = &mut establish_connection();
-    // run_migration(conn);
-
     // LOCAL TEST
     let figment = rocket::Config::figment()
         .merge(("port", 8000))
@@ -67,13 +43,6 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
-
-// pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
-
-// fn run_migration(conn: &mut PgConnection) {
-//     conn.run_pending_migrations(MIGRATIONS)
-//         .expect("Migrations should be run");
-// }
 
 // TODOS 
 
